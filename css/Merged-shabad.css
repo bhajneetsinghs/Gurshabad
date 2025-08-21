@@ -1,0 +1,727 @@
+/* ============================================
+   MERGED SHABAD CSS - Combined from:
+   - shabad-ui.css (shared UI elements)
+   - ang-viewer.css (ang page specific)
+   - reader.css (reader page specific)
+   
+   This file consolidates all styles for shabad pages
+   to reduce redundancy and improve maintainability.
+   ============================================ */
+
+/* ===================================================================== */
+/* GLOBAL VARIABLES & SETUP                                             */
+/* ===================================================================== */
+
+:root {
+  /* Z-order layers */
+  --z-header:   1000;  /* header/nav */
+  --z-backdrop: 1100;  /* click-off backdrop for dropdown */
+  --z-toolbar:  1200;  /* Ang nav toolbar */
+  --z-live:     1250;  /* live search results panel */
+  --z-dropdown: 1300;  /* dropdown panel itself */
+  --z-angnav:   1350;  /* ang nav specific (higher priority) */
+  --z-overlay:  1400;  /* overlay elements */
+  
+  /* Layout constants */
+  --angnav-top: 35px;  /* Height of the top header area */
+}
+
+/* ===================================================================== */
+/* BASE STYLES & BACKGROUND                                             */
+/* ===================================================================== */
+
+/* Background (fixed image + dark fallback + no horizontal scroll) */
+:root, html, body { 
+  background-color: #070d18; 
+}
+
+html, body { 
+  min-height: 100%; 
+  height: auto; 
+  overflow-x: hidden; 
+}
+
+/* Fixed background artwork */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("../images/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+  box-shadow: inset 0 0 200px rgba(0,0,0,0.35);
+}
+
+/* Subtle mirrored glow behind */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url("../images/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  transform: scaleY(-1);
+  opacity: 0.25;
+  mix-blend-mode: screen;
+}
+
+/* ===================================================================== */
+/* FONTS                                                                 */
+/* ===================================================================== */
+
+/* Gurmukhi font setup */
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharHeavyTrue.ttf') format('truetype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharThickTrue.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharTrue.ttf') format('truetype');
+  font-weight: 400;
+}
+
+.gurbani-font {
+  font-family: 'GurbaniAkhar', 'Noto Sans Gurmukhi', 'Nirmala UI', 'Mukta Mahee', sans-serif;
+}
+
+/* ===================================================================== */
+/* UTILITY CLASSES                                                      */
+/* ===================================================================== */
+
+/* Respect [hidden] everywhere */
+[hidden] { 
+  display: none !important; 
+}
+
+/* Status text uses Latin UI */
+.loading, .error, .empty, .info, .status, .ui-text,
+.latin-ui, .latin-ui * {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+  color: #fff;
+  opacity: .9;
+  text-align: center;
+}
+
+/* ===================================================================== */
+/* HEADER & NAVIGATION                                                  */
+/* ===================================================================== */
+
+/* Keep header above background and below dropdown layers */
+header { 
+  position: relative; 
+  z-index: var(--z-header); 
+}
+
+/* Reserve right space so pills don't overlap toolbar on wide screens */
+.shabad-page header nav { 
+  padding-right: 320px; 
+}
+
+.reader-page header nav { 
+  padding-right: 320px; 
+}
+
+/* ===================================================================== */
+/* DROPDOWN MENU (Learning)                                             */
+/* ===================================================================== */
+
+/* Transparent backdrop that only captures clicks when active */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-backdrop);
+  background: transparent;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+
+.menu-backdrop.active {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+/* The dropdown panel itself */
+.dropdown .dropdown-content {
+  position: fixed;
+  left: var(--dd-left, 50%);
+  top:  var(--dd-top,  72px);
+  transform: translateX(-50%);
+  z-index: var(--z-dropdown);
+  min-width: 220px;
+  max-width: min(360px, 86vw);
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  border-radius: 14px;
+  padding: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.dropdown.open .dropdown-content {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Ensure panel never intercepts clicks unless open */
+.dropdown:not(.open) .dropdown-content {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* Items inside dropdown */
+.dropdown .dropdown-content a {
+  display: block;
+  color: #fff;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: background .15s ease, border-color .15s ease;
+  border: 1px solid transparent;
+}
+
+.dropdown .dropdown-content a:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.24);
+}
+
+/* ===================================================================== */
+/* SHABAD TOOLBAR (Right side navigation)                               */
+/* ===================================================================== */
+
+.shabad-toolbar {
+  position: fixed;
+  right: 20px;
+  top: var(--angnav-top);
+  z-index: var(--z-angnav);
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: auto !important;
+}
+
+/* Reader page specific toolbar positioning */
+.reader-toolbar {
+  position: fixed;
+  top: 72px;
+  right: 24px;
+  margin: 0;
+  z-index: var(--z-toolbar);
+}
+
+/* Force Latin UI font for toolbar controls */
+.shabad-toolbar, .shabad-toolbar *,
+.reader-toolbar, .reader-toolbar * {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0;
+}
+
+/* Toolbar buttons */
+.shabad-toolbar .btn,
+.reader-toolbar .btn {
+  appearance: none;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.10);
+  color: #ffffff;
+  padding: 8px 14px;
+  line-height: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.98rem;
+  white-space: nowrap;
+  transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+
+.shabad-toolbar .btn:hover,
+.reader-toolbar .btn:hover {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.35);
+}
+
+.shabad-toolbar .btn:active,
+.reader-toolbar .btn:active {
+  transform: translateY(1px);
+}
+
+.shabad-toolbar .btn:focus-visible,
+.reader-toolbar .btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Ang input controls */
+.shabad-toolbar .ang-label,
+.reader-toolbar .ang-label {
+  color: #fff;
+  opacity: .9;
+  font-size: 1rem;
+  margin-right: -2px;
+}
+
+.shabad-toolbar .ang-input,
+.reader-toolbar .ang-input {
+  width: 84px;
+  text-align: center;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 10px;
+  padding: 7px 10px;
+  font-size: 1rem;
+}
+
+.shabad-toolbar .ang-input:focus,
+.reader-toolbar .ang-input:focus {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ===================================================================== */
+/* SEARCH BAR (Left side)                                               */
+/* ===================================================================== */
+
+.shabad-search {
+  position: fixed;
+  top: var(--angnav-top);
+  left: 16px;
+  z-index: var(--z-angnav);
+  width: min(360px, 40vw);
+  max-width: 420px;
+}
+
+/* Ang page specific search positioning */
+.shabad-page .shabad-search {
+  position: relative;
+  z-index: var(--z-header);
+  margin: 4px 0 0 !important;
+}
+
+/* Remove ALL borders from search container on ang page */
+.shabad-search,
+.shabad-search .search-form,
+.shabad-search .search-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Search form */
+.shabad-search .search-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Keep the form to a compact width on shabad pages */
+.shabad-page .shabad-search .search-form {
+  width: 460px;
+  max-width: calc(100vw - 48px);
+}
+
+/* INPUT uses Gurmukhi face */
+.shabad-search .search-form input[type="search"],
+.shabad-page .shabad-search #search {
+  font-family: 'Noto Sans Gurmukhi','GurbaniAkhar','Nirmala UI','Mukta Mahee',sans-serif !important;
+  letter-spacing: .15px;
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+
+.shabad-page .shabad-search #search {
+  height: 42px;
+}
+
+.shabad-search .search-form input[type="search"]::placeholder {
+  color: #ffffffcc;
+}
+
+/* SELECT + BUTTON use Latin UI */
+.shabad-search .search-form select,
+.shabad-search .search-form button[type="submit"],
+.shabad-page .shabad-search select,
+.shabad-page .shabad-search button[type="submit"] {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+  appearance: none;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 1rem;
+}
+
+.shabad-page .shabad-search select,
+.shabad-page .shabad-search button[type="submit"] {
+  height: 38px;
+  padding: 6px 12px;
+}
+
+.shabad-search .search-form button[type="submit"] {
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.shabad-search .search-form button[type="submit"]:hover {
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.35) !important;
+}
+
+/* Live results panel */
+.shabad-search .search-container {
+  position: relative;
+  margin: 0 !important;
+}
+
+#live-results {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: var(--z-live);
+  max-height: min(52vh, 520px);
+  overflow-y: auto;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.28) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Items inside live results */
+#live-results .result-item {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+  border: 1px solid transparent !important;
+  white-space: normal;
+}
+
+#live-results .result-item:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.24) !important;
+}
+
+/* ===================================================================== */
+/* GURBANI CONTAINER (Main content area)                                */
+/* ===================================================================== */
+
+#gurbani-container {
+  max-width: min(980px, 92vw);
+  margin: calc(var(--angnav-top) + 25px) auto 48px !important;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  color: #fff;
+  text-align: left;
+}
+
+/* Shabad page specific container margin */
+.shabad-page #gurbani-container {
+  margin: 60px auto 56px !important;
+}
+
+/* Reader page specific container margin */
+.reader-page #gurbani-container {
+  margin: 18px auto 48px;
+}
+
+/* ===================================================================== */
+/* GURBANI LINE STYLES                                                  */
+/* ===================================================================== */
+
+/* Line layout + separators */
+.gurbani-line {
+  display: grid;
+  grid-template-columns: 1fr !important; /* Single column layout */
+  align-items: baseline;
+  column-gap: 12px;
+  row-gap: 2px;
+  margin: 8px 0;
+  padding: 2px 0;
+}
+
+.gurbani-line + .gurbani-line {
+  border-top: 1px solid rgba(255,255,255,0.10);
+  margin-top: 10px;
+  padding-top: 12px;
+}
+
+/* Hide line numbers */
+.gurbani-line .line-number {
+  display: none !important;
+}
+
+/* Gurmukhi text */
+.gurbani-line .gurmukhi-text,
+.gurbani-line .g-line-text {
+  margin: 0;
+  color: #fff;
+  font-family: 'GurbaniAkhar', 'Noto Sans Gurmukhi', 'Nirmala UI', 'Mukta Mahee', sans-serif !important;
+  font-weight: 600;
+  line-height: 1.75;
+  font-size: clamp(1.30rem, 2.2vw, 1.60rem) !important;
+  letter-spacing: .1px;
+  font-feature-settings: "locl";
+}
+
+/* Transliteration */
+.gurbani-line .transliteration,
+.gurbani-line .g-line-translit {
+  margin: 2px 0 0;
+  color: #fff;
+  opacity: .82;
+  line-height: 1.55;
+  font-size: 1.06rem !important;
+  margin-top: 6px !important;
+}
+
+/* Interactive words */
+.gurmukhi-word {
+  cursor: pointer;
+  padding: 0 .06em;
+  border-radius: 4px;
+}
+
+.gurmukhi-word:hover {
+  background: rgba(255,255,255,0.10);
+}
+
+/* ===================================================================== */
+/* RESPONSIVE DESIGN                                                    */
+/* ===================================================================== */
+
+/* Wide screens */
+@media (min-width: 1200px) {
+  #gurbani-container {
+    margin: calc(var(--angnav-top) + 20px) auto 48px !important;
+  }
+  
+  .shabad-page #gurbani-container {
+    margin-top: 55px !important;
+  }
+}
+
+/* Medium screens */
+@media (max-width: 1060px) {
+  .reader-page header nav,
+  .shabad-page header nav {
+    padding-right: 260px;
+  }
+}
+
+@media (max-width: 860px) {
+  .reader-page header nav,
+  .shabad-page header nav {
+    padding-right: 200px;
+  }
+  
+  .reader-toolbar {
+    top: 68px;
+    right: 16px;
+  }
+}
+
+/* Small screens / Mobile */
+@media (max-width: 720px) {
+  .shabad-search {
+    position: static;
+    width: auto;
+    margin: 8px 16px 0;
+  }
+  
+  .shabad-toolbar {
+    right: 16px;
+    top: calc(var(--angnav-top) + 4px);
+  }
+  
+  #gurbani-container {
+    margin: 50px auto 48px !important;
+  }
+  
+  .shabad-page #gurbani-container {
+    margin-top: 50px !important;
+    padding: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .reader-toolbar,
+  .shabad-toolbar {
+    position: sticky;
+    top: 68px;
+    right: auto;
+    margin: 8px auto 12px;
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  
+  .reader-page header nav,
+  .shabad-page header nav {
+    padding-right: 0;
+  }
+  
+  .shabad-toolbar .btn,
+  .reader-toolbar .btn {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+  
+  .shabad-toolbar .ang-input,
+  .reader-toolbar .ang-input {
+    width: 70px;
+    padding: 5px 8px;
+  }
+}
+
+/* ============================================
+   MERGED SHABAD CSS - Combined from:
+   - shabad-ui.css (shared UI elements)
+   - ang-viewer.css (ang page specific)
+   - reader.css (reader page specific)
+   
+   This file consolidates all styles for shabad pages
+   to reduce redundancy and improve maintainability.
+   ============================================ */
+
+/* ===================================================================== */
+/* GLOBAL VARIABLES & SETUP                                             */
+/* ===================================================================== */
+
+:root {
+  /* Z-order layers */
+  --z-header:   1000;  /* header/nav */
+  --z-backdrop: 1100;  /* click-off backdrop for dropdown */
+  --z-toolbar:  1200;  /* Ang nav toolbar */
+  --z-live:     1250;  /* live search results panel */
+  --z-dropdown: 1300;  /* dropdown panel itself */
+  --z-angnav:   1350;  /* ang nav specific (higher priority) */
+  --z-overlay:  1400;  /* overlay elements */
+  
+  /* Layout constants */
+  --angnav-top: 35px;  /* Height of the top header area */
+}
+
+/* ===================================================================== */
+/* BASE STYLES & BACKGROUND                                             */
+/* ===================================================================== */
+
+/* Background (fixed image + dark fallback + no horizontal scroll) */
+:root, html, body { 
+  background-color: #070d18; 
+}
+
+html, body { 
+  min-height: 100%; 
+  height: auto; 
+  overflow-x: hidden; 
+}
+
+/* Fixed background artwork */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: url("../images/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center top;
+  box-shadow: inset 0 0 200px rgba(0,0,0,0.35);
+}
+
+/* Subtle mirrored glow behind */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image: url("../images/bg.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  transform: scaleY(-1);
+  opacity: 0.25;
+  mix-blend-mode: screen;
+}
+
+/* ===================================================================== */
+/* FONTS                                                                 */
+/* ===================================================================== */
+
+/* Gurmukhi font setup */
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharHeavyTrue.ttf') format('truetype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharThickTrue.ttf') format('truetype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'GurbaniAkhar';
+  src: url('../fonts/GurbaniAkharTrue.ttf') format('truetype');
+  font-weight: 400;
+}
+
+.gurbani-font {
+  font-family: 'GurbaniAkhar', '<truncated__content/>
+
+
+/* ===================================================================== */
+/* END OF MERGED CSS                                                    */
+/* ===================================================================== */

@@ -313,11 +313,14 @@ nav{
   /* THIS is the working selector */
   .search-page {
     display: flex;
-    justify-content: center;   /* horizontal center */
-    align-items: center;       /* vertical center */
-    min-height: 50vh;          /* half screen height */
+    flex-direction: column;
+    align-items: center;        /* centers content horizontally */
+    justify-content: flex-start; /* aligns content to the top */
+    padding: 1rem;
+    height: 100%; /* or auto, depending on use case */
     box-sizing: border-box;
-    padding: 1rem;             /* optional: avoid content flush with edge */
+
+    background: transparent; /* preserve original look */
   }
   /* -------------------search--------------- */
 

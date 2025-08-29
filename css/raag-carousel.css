@@ -67,6 +67,18 @@
 .carousel-nav.is-disabled,
 .carousel-nav[disabled]{ opacity: .45; pointer-events: none; }
 
+.carousel-nav.carousel-next,
+.carousel-nav.carousel-prev {
+  color: #ffffffe1;
+  text-decoration: none;
+  border-radius: 16px;
+  background: #42424267;
+  border: 1px solid #ffffff46;
+  box-shadow: 0 8px 32px #00000039;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .raag-card { transition: none !important; }
